@@ -1,0 +1,27 @@
+#!/usr/bin/perl -w
+
+use File::Path;
+use File::Find;
+use File::Basename;
+
+die "To use, $0 <indir> <outdir>\n" if(@ARGV != 2);
+my ($indir, $outdir) = @ARGV;
+
+mkpath($outdir) if(!(-d $outdir));
+
+my %hash_state_ues;
+
+find(\&findue, $indir);
+
+
+
+sub findue
+{
+	if($_=~/ue$/ || $_=~/mfc$/)
+	{
+		my ($tn, $td, $te) = fileparse($File::Find::name, qr/\.[^.]*/);
+		my @tmpa = split(/_/, $tn);
+		die $tn . "\t" . $tmpa[$#tmpa] . "\n";
+		push(@{$hash_state_ues{$tmpa[$#tmpa]}}, $File::Find::name);
+	}
+}

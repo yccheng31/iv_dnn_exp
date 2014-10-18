@@ -1,0 +1,81 @@
+
+perl/trans_data_2_kaldi_by_ndx.pl mat/1/TV_F_X.matx ndx/train_1.ndx gmmsv/1/TV_F_X_1.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/2/TV_F_X.matx ndx/train_2.ndx gmmsv/2/TV_F_X_2.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/3/TV_F_X.matx ndx/train_3.ndx gmmsv/3/TV_F_X_3.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/4/TV_F_X.matx ndx/train_4.ndx gmmsv/4/TV_F_X_4.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/5/TV_F_X.matx ndx/train_5.ndx gmmsv/5/TV_F_X_5.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/6/TV_F_X.matx ndx/train_6.ndx gmmsv/6/TV_F_X_6.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/7/TV_F_X.matx ndx/train_7.ndx gmmsv/7/TV_F_X_7.ark
+perl/trans_data_2_kaldi_by_ndx.pl mat/8/TV_F_X.matx ndx/train_8.ndx gmmsv/8/TV_F_X_8.ark
+
+
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_1.ndx gmmsv/1/iv_1.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_2.ndx gmmsv/2/iv_2.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_3.ndx gmmsv/3/iv_3.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_4.ndx gmmsv/4/iv_4.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_5.ndx gmmsv/5/iv_5.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_6.ndx gmmsv/6/iv_6.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_7.ndx gmmsv/7/iv_7.ark
+perl/trans_data_in_a_dir_2_kaldi_by_ndx.pl iv/train/ ndx/train_8.ndx gmmsv/8/iv_8.ark
+
+mkdir -p gmmsv_dbn/1
+mkdir -p gmmsv_dbn/2
+mkdir -p gmmsv_dbn/3
+mkdir -p gmmsv_dbn/4
+mkdir -p gmmsv_dbn/5
+mkdir -p gmmsv_dbn/6
+mkdir -p gmmsv_dbn/7
+mkdir -p gmmsv_dbn/8
+cp gmmsv/1/TV_F_X_1.scp gmmsv_dbn/1/feats.scp
+cp gmmsv/2/TV_F_X_2.scp gmmsv_dbn/2/feats.scp
+cp gmmsv/3/TV_F_X_3.scp gmmsv_dbn/3/feats.scp
+cp gmmsv/4/TV_F_X_4.scp gmmsv_dbn/4/feats.scp
+cp gmmsv/5/TV_F_X_5.scp gmmsv_dbn/5/feats.scp
+cp gmmsv/6/TV_F_X_6.scp gmmsv_dbn/6/feats.scp
+cp gmmsv/7/TV_F_X_7.scp gmmsv_dbn/7/feats.scp
+cp gmmsv/8/TV_F_X_8.scp gmmsv_dbn/8/feats.scp
+
+
+nohup ./pretrain_dbn.sh gmmsv_dbn/1/ gmmsv_dbn/1/dbn_exp/ > nohup_pretrain_1.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/2/ gmmsv_dbn/2/dbn_exp/ > nohup_pretrain_2.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/3/ gmmsv_dbn/3/dbn_exp/ > nohup_pretrain_3.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/4/ gmmsv_dbn/4/dbn_exp/ > nohup_pretrain_4.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/5/ gmmsv_dbn/5/dbn_exp/ > nohup_pretrain_5.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/6/ gmmsv_dbn/6/dbn_exp/ > nohup_pretrain_6.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/7/ gmmsv_dbn/7/dbn_exp/ > nohup_pretrain_7.log 2>&1 &
+nohup ./pretrain_dbn.sh gmmsv_dbn/8/ gmmsv_dbn/8/dbn_exp/ > nohup_pretrain_8.log 2>&1 &
+
+
+nnet-forward gmmsv_dbn/1/dbn_exp/6.dbn ark:gmmsv/1/TV_F_X_1.ark ark:gmmsv/1/TV_F_X_1_dbn_out.ark
+nnet-forward gmmsv_dbn/2/dbn_exp/6.dbn ark:gmmsv/2/TV_F_X_2.ark ark:gmmsv/2/TV_F_X_2_dbn_out.ark
+nnet-forward gmmsv_dbn/3/dbn_exp/6.dbn ark:gmmsv/3/TV_F_X_3.ark ark:gmmsv/3/TV_F_X_3_dbn_out.ark
+nnet-forward gmmsv_dbn/4/dbn_exp/6.dbn ark:gmmsv/4/TV_F_X_4.ark ark:gmmsv/4/TV_F_X_4_dbn_out.ark
+nnet-forward gmmsv_dbn/5/dbn_exp/6.dbn ark:gmmsv/5/TV_F_X_5.ark ark:gmmsv/5/TV_F_X_5_dbn_out.ark
+nnet-forward gmmsv_dbn/6/dbn_exp/6.dbn ark:gmmsv/6/TV_F_X_6.ark ark:gmmsv/6/TV_F_X_6_dbn_out.ark
+nnet-forward gmmsv_dbn/7/dbn_exp/6.dbn ark:gmmsv/7/TV_F_X_7.ark ark:gmmsv/7/TV_F_X_7_dbn_out.ark
+nnet-forward gmmsv_dbn/8/dbn_exp/6.dbn ark:gmmsv/8/TV_F_X_8.ark ark:gmmsv/8/TV_F_X_8_dbn_out.ark
+
+
+
+
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/1/TV_F_X_1_dbn_out.ark gmmsv/dbn_outs/TV_F_X_1_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/2/TV_F_X_2_dbn_out.ark gmmsv/dbn_outs/TV_F_X_2_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/3/TV_F_X_3_dbn_out.ark gmmsv/dbn_outs/TV_F_X_3_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/4/TV_F_X_4_dbn_out.ark gmmsv/dbn_outs/TV_F_X_4_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/5/TV_F_X_5_dbn_out.ark gmmsv/dbn_outs/TV_F_X_5_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/6/TV_F_X_6_dbn_out.ark gmmsv/dbn_outs/TV_F_X_6_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/7/TV_F_X_7_dbn_out.ark gmmsv/dbn_outs/TV_F_X_7_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/8/TV_F_X_8_dbn_out.ark gmmsv/dbn_outs/TV_F_X_8_dbn_out.txt
+
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/1/TV_Target_F_X_1_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_1_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/2/TV_Target_F_X_2_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_2_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/3/TV_Target_F_X_3_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_3_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/4/TV_Target_F_X_4_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_4_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/5/TV_Target_F_X_5_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_5_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/6/TV_Target_F_X_6_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_6_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/7/TV_Target_F_X_7_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_7_dbn_out.txt
+perl/trans_kaldi_data_2_raw_mat.pl gmmsv/8/TV_Target_F_X_8_dbn_out.ark gmmsv/dbn_outs/TV_Target_F_X_8_dbn_out.txt
+
+
+
+

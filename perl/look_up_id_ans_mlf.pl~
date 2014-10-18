@@ -1,0 +1,99 @@
+#!/usr/bin/perl -w
+
+use File::Spec;
+use File::Path;
+use File::Basename;
+
+
+die "To use, <id> <ref.mlf> <outlab>\n" if(@ARGV != 3);
+my ($id, $refmlf, $outlab) = @ARGV;
+my ($tn, $td, $te) = fileparse($outlab, qr/\.[^.]*/);
+
+my ($NBest, $mlfptr, @mlfkeys) = ReadNBestMLF($refmlf);
+my %hash_mlf = %$mlfptr;
+
+open ID, $id or die "Cannot open $id:\n$!\n";
+open OUTLAB, ">$outlab" or die "Cannot write to $outlab:\n$!\n";
+while(<ID>)
+{
+	chomp;
+	s/^\s+//g;
+	s/\s+$//g;
+	my $char = $hash_mlf{$_}[0]{"name"};
+	my $charnum = ord($char) - 64;
+	print OUTLAB  $char . "\n";
+}
+close ID;
+close OUTLAB;
+
+sub ReadNBestMLF
+{
+	my ($mlf) = @_;
+	my %mlfresult;
+	my @keys;
+	open MLF, $mlf or die "Cannot open $mlf:\n$!\n";
+	my $nforNBest = 0;
+	my $narr = 3;
+	my $NBest = 1;
+	while(<MLF>)
+	{
+		chomp;
+		s/^\s+//g;
+		s/\s+$//g;
+		if($_ =~"#!MLF!#")
+		{
+		}
+		elsif($_ =~ "\"")
+		{
+			$NBest = $nforNBest+1 if($NBest == 1);
+			die "Different N Best results found\n" if($nforNBest+1 != $NBest);
+			$nforNBest = 0;
+			my $pos1 = rindex($_, "/");
+			my $pos2 = rindex($_, "\.");
+			my $keyname = substr($_, $pos1 + 1, $pos2 - $pos1 - 1);
+			push(@keys, $keyname);
+		}
+		elsif($_ eq "\.")
+		{
+		}
+		elsif($_ eq '///')
+		{
+			$nforNBest++;
+		}
+		else
+		{
+			my @arr = split(/\s+/, $_);
+			#print "line:[".$_."], no element:".($#arr+1)."\n";
+			if($#arr < 2)
+			{
+				if($#arr == 0)
+				{
+						push(@{$mlfresult{$keys[$#keys]}[$nforNBest]{"name"}}, $arr[0]);
+						$narr = 1;
+				}
+				else
+				{
+					print STDERR "wrong string " . $_ . "\n";
+				}
+			}
+			else
+			{
+				die "MLF format error, different types of label output found!\n" if($narr==1);
+				push(@{$mlfresult{$keys[$#keys]}[$nforNBest]{"start"}}, $arr[0]);
+				push(@{$mlfresult{$keys[$#keys]}[$nforNBest]{"stop"}}, $arr[1]);
+				push(@{$mlfresult{$keys[$#keys]}[$nforNBest]{"name"}}, $arr[2]);
+				if($#arr >= 4)
+				{
+					#print $arr[4] . "\n";
+					push(@{$mlfresult{$keys[$#keys]}[$nforNBest]{"recognized"}}, $arr[4]);
+				}
+			}
+			#print $arr[0] . "\t" . $arr[1] . "\t" . $arr[2] . "\n";
+		}
+	}
+	close MLF;
+
+	my @retlist = ($NBest, \%mlfresult, @keys);
+	return @retlist;
+}
+

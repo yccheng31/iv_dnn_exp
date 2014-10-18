@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Copyright     2013  Daniel Povey
+# Apache 2.0.
+
+# This script extracts iVectors for a set of utterances, given
+# features and a trained iVector extractor.
+
+# Begin configuration section.
+nj=30
+cmd="run.pl"
+stage=0
+num_gselect=30 # Gaussian-selection using diagonal model: number of Gaussians to select
+min_post=0.0025 # Minimum posterior to use (posteriors below this are pruned out)
+# End configuration section.
+
+echo "$0 $@"  # Print the command line for logging
+
+if [ -f path.sh ]; then . ./path.sh; fi
+. parse_options.sh || exit 1;
+
+
+if [ $# != 4 ]; then
+  echo "Usage: $0 <extractor-dir> <data> <ivector-dir> <suffix>"
+  echo " e.g.: $0 exp/extractor_2048_male data/train_male exp/ivectors_male"
+  echo "main options (for others, see top of script file)"
+  echo "  --config <config-file>                           # config containing options"
+  echo "  --cmd (utils/run.pl|utils/queue.pl <queue opts>) # how to run jobs."
+  echo "  --num-iters <#iters|10>                          # Number of iterations of E-M"
+  echo "  --nj <n|10>                                      # Number of jobs (also see num-processes and num-threads)"
+  echo "  --num-threads <n|8>                              # Number of threads for each process"
+  echo "  --stage <stage|0>                                # To control partial reruns"
+  echo "  --num-gselect <n|20>                             # Number of Gaussians to select using"
+  echo "                                                   # diagonal model."
+  echo "  --min-post <min-post|0.025>                      # Pruning threshold for posteriors"
+  exit 1;
+fi
+
+srcdir=$1
+data=$2
+dir=$3
+suffix=$4
+feats1="scp:$data/trainJPGs_UE_state_${suffix}.scp"
+feats2="scp:$data/testJPGs_UE_state_${suffix}.scp"
+dubm=$srcdir/final.dubm
+for f in $srcdir/final.ie $srcdir/final.ubm $data/trainJPGs_UE_state_${suffix}.scp $data/testJPGs_UE_state_${suffix}.scp; do
+  [ ! -f $f ] && echo "No such file $f" && exit 1;
+done
+
+# Set various variables.
+mkdir -p $dir/log
+
+echo "$0: extracting iVectors"
+
+$cmd $dir/log/extract_ivectors_train.log \
+  gmm-gselect --n=$num_gselect "$dubm" "$feats1" ark:- \| \
+  fgmm-global-gselect-to-post --min-post=$min_post $srcdir/final.ubm "$feats1" \
+     ark:- ark:- \| \
+  ivector-extract --verbose=2 $srcdir/final.ie "$feats1" ark:- \
+    ark,scp,t:$dir/ivector_train.ark,$dir/ivector_train.scp || exit 1;
+
+$cmd $dir/log/extract_ivectors_test.log \
+  gmm-gselect --n=$num_gselect "$dubm" "$feats2" ark:- \| \
+  fgmm-global-gselect-to-post --min-post=$min_post $srcdir/final.ubm "$feats2" \
+     ark:- ark:- \| \
+  ivector-extract --verbose=2 $srcdir/final.ie "$feats2" ark:- \
+    ark,scp,t:$dir/ivector_test.ark,$dir/ivector_test.scp || exit 1;
+
